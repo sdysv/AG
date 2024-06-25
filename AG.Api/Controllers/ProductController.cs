@@ -29,26 +29,34 @@ namespace AG.Api.Controllers
         [HttpGet("getproduct/{id}")]
         public async Task<IActionResult> GetProductById(int id)
         {
-            //using var scoped = _serviceProvider.CreateScope();
-            //var mediator = scoped.ServiceProvider.GetRequiredService<IMediator>();
-
-            var request = new GetProductByIdQueryRequest { Id = id };
-            var response = await _mediator.Send(request);
-
-            if (response.IsError)
+            try
             {
-                foreach (var error in response.Errors)
+                //using var scoped = _serviceProvider.CreateScope();
+                //var mediator = scoped.ServiceProvider.GetRequiredService<IMediator>();
+
+                var request = new GetProductByIdQueryRequest { Id = id };
+                var response = await _mediator.Send(request);
+
+                if (response.IsError)
                 {
-                    //Caso necessário criar rotina de logs
+                    foreach (var error in response.Errors)
+                    {
+                        //Caso necessário criar rotina de logs
+                    }
+
+                    return Problem("Erro ao consultar produto!");
                 }
 
-                return Problem("Erro ao consultar produto!");
+                if (response.Value == null)
+                    return NotFound("Nenhum produto encontrado para o código informado");
+
+                return Ok(response);
+
             }
-
-            if (response.Value == null)
-                return NotFound("Nenhum produto encontrado para o código informado");
-
-            return Ok(response);
+            catch (Exception e)
+            {
+                return Problem("Erro ao consultar produto: " + (e.InnerException ?? e).Message);
+            }
         }
 
         [HttpGet("getproducts/{page}/{pageQuantity}")]
@@ -78,7 +86,7 @@ namespace AG.Api.Controllers
             }
             catch (Exception e)
             {
-                return Problem("Erro ao consultar lista de produtos");
+                return Problem("Erro ao consultar lista de produtos: " + (e.InnerException ?? e).Message);
             }
 
         }
