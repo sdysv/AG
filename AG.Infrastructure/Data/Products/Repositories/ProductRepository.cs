@@ -53,6 +53,9 @@ namespace AG.Infrastructure.Data.Products.Repositories
         {
             var result = await _sqlcontext.Products.FindAsync(id);
 
+            if (result == null)
+                return false;
+
             result.IsEnabled = false;
             _sqlcontext.Entry(result).State = EntityState.Modified;
 
